@@ -5,7 +5,7 @@ import {
   LineChart, Line, BarChart, Bar, AreaChart, Area, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
-import { RefreshCw, TrendingUp, TrendingDown, Minus, Calculator } from 'lucide-react'
+import { RefreshCw, TrendingUp, TrendingDown, Minus, Calculator, Thermometer, PiggyBank, ExternalLink } from 'lucide-react'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface Dolar {
@@ -14,9 +14,12 @@ interface Dolar {
   fechaActualizacion: string
   variacion?: number
 }
-interface EvolucionRow { month: string; oficial: number | null; blue: number | null }
-interface DataRow      { fecha: string; valor: number }
-interface Sparklines   { oficial: number[]; blue: number[]; dates: string[] }
+interface EvolucionRow  { month: string; oficial: number | null; blue: number | null }
+interface DataRow       { fecha: string; valor: number }
+interface Sparklines    { oficial: number[]; blue: number[]; dates: string[] }
+interface BrechaRow     { date: string; brecha: number; blue: number; oficial: number }
+interface PlazoFijoRate { entidad: string; tna: number; tea: number; tna30: number; enlace: string | null }
+interface PlazoFijoData { top5: PlazoFijoRate[]; avgTraditional: number | null; best: PlazoFijoRate | null }
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const BG      = '#07070f'
@@ -484,6 +487,298 @@ function RiesgoPaisChart({ data }: { data: DataRow[] }) {
   )
 }
 
+// ── Brecha Histórica ──────────────────────────────────────────────────────────
+function BrechaHistorica({ data }: { data: BrechaRow[] }) {
+  const last  = data[data.length - 1]
+  const first = data[0]
+  const min   = Math.min(...data.map(d => d.brecha))
+  const max   = Math.max(...data.map(d => d.brecha))
+  const color = (last?.brecha ?? 0) < 10 ? '#4ade80' : (last?.brecha ?? 0) < 40 ? '#facc15' : (last?.brecha ?? 0) < 80 ? '#fb923c' : '#f87171'
+
+  return (
+    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+      <div className="flex items-start justify-between mb-5">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-500 mb-1">Brecha cambiaria histórica</p>
+          <p className="text-[11px] text-slate-600">(Blue − Oficial) / Oficial × 100 — últimos 18 meses</p>
+        </div>
+        <div className="text-right">
+          <p className="text-2xl font-bold tabnum" style={{ color }}>
+            {last ? `${last.brecha > 0 ? '+' : ''}${last.brecha.toFixed(1)}%` : '—'}
+          </p>
+          <p className="text-[10px] text-slate-600 mt-0.5">hoy</p>
+        </div>
+      </div>
+
+      {/* Min / Max pills */}
+      <div className="flex gap-3 mb-4">
+        <span className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: '#4ade8018', color: '#4ade80', border: '1px solid #4ade8030' }}>
+          Mín {min.toFixed(1)}%
+        </span>
+        <span className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: '#f8717118', color: '#f87171', border: '1px solid #f8717130' }}>
+          Máx {max.toFixed(1)}%
+        </span>
+        {first && (
+          <span className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: '#ffffff08', color: '#64748b', border: `1px solid ${BORDER}` }}>
+            Hace 18m: {first.brecha.toFixed(1)}%
+          </span>
+        )}
+      </div>
+
+      <ResponsiveContainer width="100%" height={220}>
+        <AreaChart data={data} margin={{ top: 8, right: 24, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id="brechaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%"  stopColor={color} stopOpacity={0.25} />
+              <stop offset="95%" stopColor={color} stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="#1c1c30" vertical={false} />
+          <XAxis dataKey="date" tick={{ fill: '#475569', fontSize: 10 }}
+            tickFormatter={s => fmt.date(s)} interval={15} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill: '#475569', fontSize: 11 }}
+            tickFormatter={v => `${v}%`} axisLine={false} tickLine={false} width={36} domain={[0, 'auto']} />
+          <Tooltip
+            {...ttStyle}
+            labelFormatter={s => fmt.date(String(s))}
+            formatter={(v, name) => {
+              if (name === 'brecha') return [`${Number(v).toFixed(1)}%`, 'Brecha']
+              return [`$${fmt.ars(Number(v))}`, name === 'blue' ? 'Blue' : 'Oficial']
+            }}
+          />
+          <Area type="monotone" dataKey="brecha" stroke={color} strokeWidth={2.5} fill="url(#brechaGrad)" dot={false} />
+        </AreaChart>
+      </ResponsiveContainer>
+
+      {/* Context bands */}
+      <div className="flex gap-2 mt-3 flex-wrap">
+        {[
+          { label: '0–10% · Tipo de cambio unificado', color: '#4ade80' },
+          { label: '10–40% · Tensión moderada',        color: '#facc15' },
+          { label: '40–80% · Cepo fuerte',             color: '#fb923c' },
+          { label: '+80% · Crisis cambiaria',          color: '#f87171' },
+        ].map(b => (
+          <span key={b.label} className="flex items-center gap-1.5 text-[9px] text-slate-600">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: b.color }} />
+            {b.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Termómetro Económico ──────────────────────────────────────────────────────
+function TermometroEconomico({
+  dolares, inflacion, riesgo, plazoFijo, brecha,
+}: {
+  dolares: Dolar[]
+  inflacion: { monthly: DataRow[]; yoy: DataRow[] } | null
+  riesgo: DataRow[]
+  plazoFijo: PlazoFijoData | null
+  brecha: number | null
+}) {
+  const oficial  = dolares.find(d => d.casa === 'oficial')
+  const lastInf  = inflacion?.monthly[inflacion.monthly.length - 1]
+  const lastRp   = riesgo[riesgo.length - 1]
+  const bestTNA  = plazoFijo?.best?.tna ?? null
+
+  // Acumulado anual inflación
+  const lastYear = inflacion?.monthly.slice(-12) ?? []
+  const acumAnual = lastYear.length
+    ? lastYear.reduce((acc, r) => acc * (1 + r.valor / 100), 1) - 1
+    : null
+
+  const SALARIO_MINIMO = 906_000 // Mar 2026 SMVyL
+  const salarMinBlue  = oficial && dolares.find(d => d.casa === 'blue')
+    ? (SALARIO_MINIMO / dolares.find(d => d.casa === 'blue')!.venta).toFixed(0)
+    : null
+  const salarMinOfic  = oficial
+    ? (SALARIO_MINIMO / oficial.venta).toFixed(0)
+    : null
+
+  const items = [
+    {
+      label: 'Cepo cambiario',
+      value: 'Vigente',
+      sub: 'Límite $200 USD/mes',
+      color: '#f87171',
+      icon: '🔒',
+      status: 'bad',
+    },
+    {
+      label: 'Brecha blue/oficial',
+      value: brecha !== null ? `${brecha.toFixed(1)}%` : '—',
+      sub: brecha !== null ? (brecha < 10 ? 'Muy baja' : brecha < 30 ? 'Moderada' : brecha < 60 ? 'Alta' : 'Muy alta') : '',
+      color: brecha === null ? '#64748b' : brecha < 10 ? '#4ade80' : brecha < 30 ? '#facc15' : brecha < 60 ? '#fb923c' : '#f87171',
+      icon: '💱',
+      status: brecha !== null && brecha < 20 ? 'ok' : 'bad',
+    },
+    {
+      label: 'Inflación mensual',
+      value: lastInf ? `${lastInf.valor.toFixed(1)}%` : '—',
+      sub: lastInf ? `Acum. anual ~${acumAnual !== null ? (acumAnual * 100).toFixed(0) : '?'}%` : 'INDEC',
+      color: (lastInf?.valor ?? 99) < 3 ? '#4ade80' : (lastInf?.valor ?? 99) < 6 ? '#facc15' : '#f87171',
+      icon: '🔥',
+      status: (lastInf?.valor ?? 99) < 5 ? 'ok' : 'bad',
+    },
+    {
+      label: 'Riesgo país',
+      value: lastRp ? `${fmt.ars(lastRp.valor)} bps` : '—',
+      sub: (lastRp?.valor ?? 9999) < 400 ? 'Bajo' : (lastRp?.valor ?? 9999) < 800 ? 'Moderado' : 'Alto',
+      color: (lastRp?.valor ?? 9999) < 400 ? '#4ade80' : (lastRp?.valor ?? 9999) < 800 ? '#facc15' : '#f87171',
+      icon: '⚡',
+      status: (lastRp?.valor ?? 9999) < 600 ? 'ok' : 'bad',
+    },
+    {
+      label: 'Mejor plazo fijo',
+      value: bestTNA !== null ? `${(bestTNA * 100).toFixed(1)}% TNA` : '—',
+      sub: bestTNA !== null ? `~${((bestTNA / 12) * 100).toFixed(1)}% mensual` : '',
+      color: '#34d399',
+      icon: '🏦',
+      status: 'neutral',
+    },
+    {
+      label: 'Salario mínimo',
+      value: `$${fmt.ars(SALARIO_MINIMO)}`,
+      sub: salarMinBlue ? `≈ U$S ${salarMinBlue} (blue) · ${salarMinOfic} (oficial)` : '',
+      color: '#94a3b8',
+      icon: '👷',
+      status: 'neutral',
+    },
+  ]
+
+  return (
+    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+      <div className="flex items-center gap-2 mb-5">
+        <Thermometer size={14} style={{ color: CELESTE }} />
+        <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-400">Termómetro económico</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {items.map(item => (
+          <div key={item.label}
+            className="flex items-center gap-3 rounded-xl px-4 py-3"
+            style={{ background: SURFACE, border: `1px solid ${BORDER}` }}>
+            <span className="text-lg shrink-0">{item.icon}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] text-slate-500 mb-0.5">{item.label}</p>
+              <p className="text-sm font-bold tabnum truncate" style={{ color: item.color }}>{item.value}</p>
+              {item.sub && <p className="text-[10px] text-slate-600 truncate">{item.sub}</p>}
+            </div>
+            <div className="w-2 h-2 rounded-full shrink-0" style={{
+              background: item.status === 'ok' ? '#4ade80' : item.status === 'bad' ? '#f87171' : '#475569'
+            }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Plazo Fijo vs Inflación ───────────────────────────────────────────────────
+function PlazoFijoPanel({ data, inflacion }: {
+  data: PlazoFijoData
+  inflacion: { monthly: DataRow[]; yoy: DataRow[] } | null
+}) {
+  const [capital, setCapital] = useState(1_000_000)
+  const lastInf = inflacion?.monthly[inflacion.monthly.length - 1]?.valor ?? null
+  const best = data.best
+
+  const gananciaPlazofijo = best ? capital * (best.tna / 12) : 0
+  const perdidaInflacion  = lastInf !== null ? capital * (lastInf / 100) : null
+  const saldo30d          = capital + gananciaPlazofijo
+
+  const realReturn = lastInf !== null && best
+    ? ((best.tna / 12) - lastInf / 100) * 100
+    : null
+
+  return (
+    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+      <div className="flex items-center gap-2 mb-5">
+        <PiggyBank size={14} style={{ color: '#34d399' }} />
+        <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-400">Plazo fijo vs inflación</p>
+      </div>
+
+      {/* Capital input */}
+      <div className="flex items-center gap-3 rounded-xl px-4 py-3 mb-5"
+        style={{ background: SURFACE, border: `1px solid ${BORDER}` }}>
+        <span className="text-sm font-bold text-slate-400 shrink-0">$</span>
+        <input
+          type="number"
+          value={capital}
+          onChange={e => setCapital(Math.max(1000, Number(e.target.value)))}
+          className="flex-1 bg-transparent text-xl font-bold text-white outline-none tabnum min-w-0"
+          step={10000}
+        />
+        <span className="text-xs text-slate-600 shrink-0">ARS</span>
+      </div>
+
+      {/* 30-day projection */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="rounded-xl p-3 text-center" style={{ background: SURFACE, border: `1px solid ${BORDER}` }}>
+          <p className="text-[9px] text-slate-600 mb-1 uppercase tracking-wider">Capital inicial</p>
+          <p className="text-sm font-bold text-white tabnum">${fmt.ars(capital)}</p>
+        </div>
+        <div className="rounded-xl p-3 text-center" style={{ background: '#34d39912', border: '1px solid #34d39930' }}>
+          <p className="text-[9px] text-slate-500 mb-1 uppercase tracking-wider">En 30 días</p>
+          <p className="text-sm font-bold tabnum" style={{ color: '#34d399' }}>${fmt.ars(saldo30d)}</p>
+          <p className="text-[9px] text-green-600">+${fmt.ars(gananciaPlazofijo)}</p>
+        </div>
+        <div className="rounded-xl p-3 text-center"
+          style={{ background: perdidaInflacion !== null ? '#f8717112' : SURFACE, border: `1px solid ${perdidaInflacion !== null ? '#f8717130' : BORDER}` }}>
+          <p className="text-[9px] text-slate-500 mb-1 uppercase tracking-wider">Pierde inflación</p>
+          <p className="text-sm font-bold text-red-400 tabnum">
+            {perdidaInflacion !== null ? `-$${fmt.ars(perdidaInflacion)}` : '—'}
+          </p>
+          <p className="text-[9px] text-red-600">{lastInf !== null ? `${lastInf.toFixed(1)}% mensual` : ''}</p>
+        </div>
+      </div>
+
+      {/* Real return */}
+      {realReturn !== null && (
+        <div className="rounded-xl px-4 py-2.5 mb-5 flex items-center justify-between"
+          style={{
+            background: realReturn >= 0 ? '#4ade8010' : '#f8717110',
+            border: `1px solid ${realReturn >= 0 ? '#4ade8025' : '#f8717125'}`,
+          }}>
+          <p className="text-xs text-slate-400">
+            Rendimiento real (plazo fijo − inflación):
+          </p>
+          <p className="text-sm font-bold tabnum" style={{ color: realReturn >= 0 ? '#4ade80' : '#f87171' }}>
+            {realReturn >= 0 ? '+' : ''}{realReturn.toFixed(2)}% mensual
+          </p>
+        </div>
+      )}
+
+      {/* Top 5 table */}
+      <p className="text-[9px] font-bold uppercase tracking-[3px] text-slate-600 mb-2">Mejores tasas disponibles</p>
+      <div className="flex flex-col gap-1.5">
+        {data.top5.map((b, i) => (
+          <div key={b.entidad} className="flex items-center gap-3 rounded-lg px-3 py-2"
+            style={{ background: SURFACE, border: `1px solid ${BORDER}` }}>
+            <span className="text-[10px] font-bold text-slate-600 w-4 shrink-0">{i + 1}</span>
+            <p className="text-[11px] text-slate-300 flex-1 truncate">{b.entidad}</p>
+            <div className="text-right shrink-0">
+              <span className="text-xs font-bold tabnum" style={{ color: '#34d399' }}>
+                {(b.tna * 100).toFixed(1)}% TNA
+              </span>
+              <span className="text-[9px] text-slate-600 ml-2 tabnum">
+                {b.tna30.toFixed(1)}%/mes
+              </span>
+            </div>
+            {b.enlace && (
+              <a href={b.enlace} target="_blank" rel="noreferrer"
+                className="shrink-0 text-slate-700 hover:text-slate-400 transition-colors">
+                <ExternalLink size={11} />
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function Pulse({ h = 'h-32', cols = 1 }: { h?: string; cols?: number }) {
   return (
@@ -497,15 +792,17 @@ function Pulse({ h = 'h-32', cols = 1 }: { h?: string; cols?: number }) {
 
 // ── Main Dashboard ────────────────────────────────────────────────────────────
 export default function Dashboard() {
-  const [dolares,    setDolares]    = useState<Dolar[]>([])
-  const [evolucion,  setEvolucion]  = useState<EvolucionRow[]>([])
-  const [inflacion,  setInflacion]  = useState<{ monthly: DataRow[]; yoy: DataRow[] } | null>(null)
-  const [riesgo,     setRiesgo]     = useState<DataRow[]>([])
-  const [sparklines, setSparklines] = useState<Sparklines | null>(null)
-  const [tab,        setTab]        = useState<Tab>('evolucion')
-  const [loading,    setLoading]    = useState(true)
-  const [lastUpdate, setLastUpdate] = useState('')
-  const [refreshing, setRefreshing] = useState(false)
+  const [dolares,         setDolares]         = useState<Dolar[]>([])
+  const [evolucion,       setEvolucion]       = useState<EvolucionRow[]>([])
+  const [inflacion,       setInflacion]       = useState<{ monthly: DataRow[]; yoy: DataRow[] } | null>(null)
+  const [riesgo,          setRiesgo]          = useState<DataRow[]>([])
+  const [sparklines,      setSparklines]      = useState<Sparklines | null>(null)
+  const [brechaHistorica, setBrechaHistorica] = useState<BrechaRow[]>([])
+  const [plazoFijo,       setPlazoFijo]       = useState<PlazoFijoData | null>(null)
+  const [tab,             setTab]             = useState<Tab>('evolucion')
+  const [loading,         setLoading]         = useState(true)
+  const [lastUpdate,      setLastUpdate]      = useState('')
+  const [refreshing,      setRefreshing]      = useState(false)
 
   const loadDolares = useCallback(async (silent = false) => {
     if (!silent) setRefreshing(true)
@@ -525,8 +822,11 @@ export default function Dashboard() {
       fetch('/api/inflacion').then(r => r.json()),
       fetch('/api/riesgo-pais').then(r => r.json()),
       fetch('/api/sparklines').then(r => r.json()),
-    ]).then(([dol, evo, inf, rp, sp]) => {
-      setDolares(dol); setEvolucion(evo); setInflacion(inf); setRiesgo(rp); setSparklines(sp)
+      fetch('/api/brecha-historica').then(r => r.json()),
+      fetch('/api/plazo-fijo').then(r => r.json()),
+    ]).then(([dol, evo, inf, rp, sp, bh, pf]) => {
+      setDolares(dol); setEvolucion(evo); setInflacion(inf); setRiesgo(rp)
+      setSparklines(sp); setBrechaHistorica(bh); setPlazoFijo(pf)
       setLastUpdate(new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }))
     }).finally(() => setLoading(false))
 
@@ -701,6 +1001,27 @@ export default function Dashboard() {
             )}
           </div>
         </section>
+
+        {/* ── Brecha histórica ── */}
+        {!loading && brechaHistorica.length > 0 && (
+          <BrechaHistorica data={brechaHistorica} />
+        )}
+
+        {/* ── Termómetro + Plazo Fijo ── */}
+        {!loading && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TermometroEconomico
+              dolares={dolares}
+              inflacion={inflacion}
+              riesgo={riesgo}
+              plazoFijo={plazoFijo}
+              brecha={brecha}
+            />
+            {plazoFijo && (
+              <PlazoFijoPanel data={plazoFijo} inflacion={inflacion} />
+            )}
+          </div>
+        )}
 
         {/* ── Footer ── */}
         <footer className="text-center pt-2 pb-6 border-t" style={{ borderColor: BORDER }}>
