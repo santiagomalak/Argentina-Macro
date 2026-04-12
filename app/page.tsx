@@ -380,7 +380,8 @@ function EvolucionChart({ data }: { data: EvolucionRow[] }) {
           </span>
         ))}
       </div>
-      <ResponsiveContainer width="100%" height={300}>
+      <div style={{ width: '100%' }}>
+      <ResponsiveContainer width="100%" height={340}>
         <LineChart data={data} margin={{ top: 8, right: 32, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1c1c30" vertical={false} />
           <XAxis dataKey="month" tick={{ fill: '#475569', fontSize: 11 }}
@@ -393,6 +394,7 @@ function EvolucionChart({ data }: { data: EvolucionRow[] }) {
           <Line type="monotone" dataKey="blue"    stroke="#c084fc" strokeWidth={2.5} dot={false} strokeDasharray="5 3" />
         </LineChart>
       </ResponsiveContainer>
+      </div>
     </div>
   )
 }
@@ -406,7 +408,8 @@ function InflacionChart({ data }: { data: { monthly: DataRow[]; yoy: DataRow[] }
     <div className="flex flex-col gap-8">
       <div>
         <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-500 mb-4">IPC mensual — últimos 24 meses</p>
-        <ResponsiveContainer width="100%" height={200}>
+        <div style={{ width: '100%' }}>
+        <ResponsiveContainer width="100%" height={220}>
           <BarChart data={merged} margin={{ top: 4, right: 32, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1c1c30" vertical={false} />
             <XAxis dataKey="fecha" tick={{ fill: '#475569', fontSize: 10 }}
@@ -421,10 +424,12 @@ function InflacionChart({ data }: { data: { monthly: DataRow[]; yoy: DataRow[] }
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+        </div>
       </div>
       <div>
         <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-500 mb-4">Inflación interanual (YoY)</p>
-        <ResponsiveContainer width="100%" height={180}>
+        <div style={{ width: '100%' }}>
+        <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={merged} margin={{ top: 4, right: 32, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="yoyGrad" x1="0" y1="0" x2="0" y2="1">
@@ -441,6 +446,7 @@ function InflacionChart({ data }: { data: { monthly: DataRow[]; yoy: DataRow[] }
             <Area type="monotone" dataKey="interanual" stroke="#f87171" strokeWidth={2.5} fill="url(#yoyGrad)" dot={false} />
           </AreaChart>
         </ResponsiveContainer>
+        </div>
       </div>
     </div>
   )
@@ -466,7 +472,8 @@ function RiesgoPaisChart({ data }: { data: DataRow[] }) {
           </div>
         )}
       </div>
-      <ResponsiveContainer width="100%" height={240}>
+      <div style={{ width: '100%' }}>
+      <ResponsiveContainer width="100%" height={280}>
         <AreaChart data={data} margin={{ top: 8, right: 32, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="rpGrad" x1="0" y1="0" x2="0" y2="1">
@@ -483,6 +490,7 @@ function RiesgoPaisChart({ data }: { data: DataRow[] }) {
           <Area type="monotone" dataKey="valor" stroke="#f97316" strokeWidth={2.5} fill="url(#rpGrad)" dot={false} />
         </AreaChart>
       </ResponsiveContainer>
+      </div>
     </div>
   )
 }
@@ -525,6 +533,7 @@ function BrechaHistorica({ data }: { data: BrechaRow[] }) {
         )}
       </div>
 
+      <div style={{ width: '100%' }}>
       <ResponsiveContainer width="100%" height={220}>
         <AreaChart data={data} margin={{ top: 8, right: 24, left: 0, bottom: 0 }}>
           <defs>
@@ -549,6 +558,7 @@ function BrechaHistorica({ data }: { data: BrechaRow[] }) {
           <Area type="monotone" dataKey="brecha" stroke={color} strokeWidth={2.5} fill="url(#brechaGrad)" dot={false} />
         </AreaChart>
       </ResponsiveContainer>
+      </div>
 
       {/* Context bands */}
       <div className="flex gap-2 mt-3 flex-wrap">
@@ -865,7 +875,7 @@ export default function Dashboard() {
         <div className="h-[3px]" style={{
           background: `linear-gradient(90deg, ${CELESTE} 33%, #fff 33%, #fff 67%, ${CELESTE} 67%)`
         }} />
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-4 relative">
+        <div className="max-w-[1800px] mx-auto px-6 py-3 flex items-center justify-between gap-4 relative">
           {/* Sol de Mayo watermark */}
           <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none overflow-hidden h-14 w-14">
             <SolDeMayo size={56} opacity={0.12} />
@@ -904,7 +914,7 @@ export default function Dashboard() {
       {/* ── Ticker tape ── */}
       {!loading && dolares.length > 0 && <TickerTape dolares={dolares} />}
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-8">
+      <main className="max-w-[1800px] mx-auto px-4 sm:px-6 xl:px-10 py-8 flex flex-col gap-8">
 
         {/* ── Hero KPIs ── */}
         {loading ? <Pulse h="h-28" cols={4} /> : (
@@ -941,15 +951,25 @@ export default function Dashboard() {
             </>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* En desktop: 3 featured + 4 mini en la misma fila */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-7 gap-4">
                 {featured.map(d => (
-                  <FeaturedCard key={d.casa} d={d}
-                    oficialVenta={oficial?.venta ?? 0}
-                    sparkValues={sparkFor[d.casa]} />
+                  <div key={d.casa} className="xl:col-span-2">
+                    <FeaturedCard d={d}
+                      oficialVenta={oficial?.venta ?? 0}
+                      sparkValues={sparkFor[d.casa]} />
+                  </div>
                 ))}
+                {/* Mini cards inline en xl */}
+                <div className="xl:col-span-1 flex xl:flex-col gap-2 sm:hidden xl:flex">
+                  {mini.slice(0, 2).map(d => <MiniCard key={d.casa} d={d} oficialVenta={oficial?.venta ?? 0} />)}
+                </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-4 gap-2 xl:hidden">
                 {mini.map(d => <MiniCard key={d.casa} d={d} oficialVenta={oficial?.venta ?? 0} />)}
+              </div>
+              <div className="hidden xl:grid grid-cols-4 gap-2">
+                {mini.slice(2).map(d => <MiniCard key={d.casa} d={d} oficialVenta={oficial?.venta ?? 0} />)}
               </div>
             </>
           )}
