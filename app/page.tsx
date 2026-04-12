@@ -875,7 +875,7 @@ export default function Dashboard() {
         <div className="h-[3px]" style={{
           background: `linear-gradient(90deg, ${CELESTE} 33%, #fff 33%, #fff 67%, ${CELESTE} 67%)`
         }} />
-        <div className="max-w-[1800px] mx-auto px-6 py-3 flex items-center justify-between gap-4 relative">
+        <div className="w-full px-6 py-3 flex items-center justify-between gap-4 relative">
           {/* Sol de Mayo watermark */}
           <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none overflow-hidden h-14 w-14">
             <SolDeMayo size={56} opacity={0.12} />
@@ -914,7 +914,7 @@ export default function Dashboard() {
       {/* ── Ticker tape ── */}
       {!loading && dolares.length > 0 && <TickerTape dolares={dolares} />}
 
-      <main className="max-w-[1800px] mx-auto px-4 sm:px-6 xl:px-10 py-8 flex flex-col gap-8">
+      <main className="w-full px-4 sm:px-6 xl:px-12 2xl:px-20 py-8 flex flex-col gap-8">
 
         {/* ── Hero KPIs ── */}
         {loading ? <Pulse h="h-28" cols={4} /> : (
