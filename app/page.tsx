@@ -29,13 +29,13 @@ const BORDER  = '#0F3A5C'   // visible blue border
 const CELESTE = '#74ACDF'   // official Argentine flag celeste (Pantone 290C)
 
 const META: Record<string, { label: string; color: string; desc: string }> = {
-  oficial:         { label: 'Oficial',   color: CELESTE,  desc: 'Banco Nación Argentina' },
-  blue:            { label: 'Blue',      color: '#c084fc', desc: 'Mercado informal' },
-  bolsa:           { label: 'MEP',       color: '#34d399', desc: 'Mercado Electrónico de Pagos' },
-  contadoconliqui: { label: 'CCL',       color: '#f97316', desc: 'Contado con Liquidación' },
-  cripto:          { label: 'Cripto',    color: '#fbbf24', desc: 'Vía stablecoins (USDT)' },
-  tarjeta:         { label: 'Tarjeta',   color: '#f472b6', desc: 'Oficial + impuestos' },
-  mayorista:       { label: 'Mayorista', color: '#2dd4bf', desc: 'Mercado interbancario' },
+  oficial:         { label: 'Oficial',   color: CELESTE,   desc: 'Banco Nación Argentina' },
+  blue:            { label: 'Blue',      color: '#94b8d4', desc: 'Mercado informal' },
+  bolsa:           { label: 'MEP',       color: '#7aafc8', desc: 'Mercado Electrónico de Pagos' },
+  contadoconliqui: { label: 'CCL',       color: '#85b8cc', desc: 'Contado con Liquidación' },
+  cripto:          { label: 'Cripto',    color: '#8ab5c8', desc: 'Vía stablecoins (USDT)' },
+  tarjeta:         { label: 'Tarjeta',   color: '#6da8c4', desc: 'Oficial + impuestos' },
+  mayorista:       { label: 'Mayorista', color: '#5d9ab8', desc: 'Mercado interbancario' },
 }
 const ORDER     = ['oficial', 'blue', 'bolsa', 'contadoconliqui', 'cripto', 'tarjeta', 'mayorista']
 const CALC_ORDER = ['oficial', 'blue', 'bolsa', 'contadoconliqui', 'cripto', 'tarjeta']
@@ -179,13 +179,11 @@ function TickerTape({ dolares }: { dolares: Dolar[] }) {
 // ── Hero KPI card ─────────────────────────────────────────────────────────────
 function HeroKPI({ label, value, sub, color }: { label: string; value: string; sub: string; color: string }) {
   return (
-    <div className="flex flex-col gap-2 p-5 rounded-2xl relative overflow-hidden"
-      style={{ background: CARD, border: `1px solid ${color}40`, borderTop: `3px solid ${color}` }}>
-      <div className="absolute inset-0 rounded-2xl pointer-events-none"
-        style={{ background: `radial-gradient(ellipse at top left, ${color}18, transparent 65%)` }} />
-      <p className="text-[10px] font-bold uppercase tracking-[3px] relative z-10" style={{ color: color + 'bb' }}>{label}</p>
-      <p className="text-3xl font-bold tracking-tight tabnum relative z-10 text-white">{value}</p>
-      <p className="text-[11px] relative z-10" style={{ color: '#4d7a9a' }}>{sub}</p>
+    <div className="flex flex-col gap-2 p-5 rounded-xl relative overflow-hidden"
+      style={{ background: CARD, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${CELESTE}` }}>
+      <p className="text-[10px] font-bold uppercase tracking-[3px]" style={{ color: CELESTE + '99' }}>{label}</p>
+      <p className="text-3xl font-bold tracking-tight tabnum text-white">{value}</p>
+      <p className="text-[11px]" style={{ color: '#4d7a9a' }}>{sub}</p>
     </div>
   )
 }
@@ -201,11 +199,11 @@ function FeaturedCard({ d, oficialVenta, sparkValues }: {
   const varColor = (d.variacion ?? 0) > 0 ? '#4ade80' : (d.variacion ?? 0) < 0 ? '#f87171' : '#64748b'
 
   return (
-    <div className="rounded-2xl p-6 flex flex-col gap-4 relative overflow-hidden group
-                    transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-      style={{ background: CARD, border: `1px solid ${m.color}45`, borderTop: `3px solid ${m.color}` }}>
-      <div className="absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-80"
-        style={{ background: `radial-gradient(ellipse at top left, ${m.color}14, transparent 55%)` }} />
+    <div className="rounded-xl p-6 flex flex-col gap-4 relative overflow-hidden group
+                    transition-all duration-300 hover:-translate-y-0.5"
+      style={{ background: CARD, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${CELESTE}` }}>
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background: `radial-gradient(ellipse at top left, ${CELESTE}08, transparent 60%)` }} />
 
       <div className="flex items-start justify-between relative z-10">
         <div>
@@ -256,7 +254,7 @@ function MiniCard({ d, oficialVenta }: { d: Dolar; oficialVenta: number }) {
   return (
     <div className="rounded-xl px-4 py-3.5 flex items-center justify-between gap-4
                     transition-all hover:brightness-110"
-      style={{ background: CARD, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${m.color}` }}>
+      style={{ background: CARD, border: `1px solid ${BORDER}` }}>
       <div className="flex items-center gap-3">
         <div className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />
         <div>
@@ -284,7 +282,7 @@ function BrechaComparador({ dolares }: { dolares: Dolar[] }) {
   const max = Math.max(...comparables.map(d => d.venta))
 
   return (
-    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}`, borderTop: `3px solid ${CELESTE}` }}>
+    <div className="rounded-xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
       <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-500 mb-1">Comparador de tipos de cambio</p>
       <p className="text-[11px] text-slate-600 mb-6">Precio venta · referencia Oficial ${fmt.ars(oficial.venta)}</p>
       <div className="flex flex-col gap-3.5">
@@ -333,7 +331,7 @@ function Calculadora({ dolares }: { dolares: Dolar[] }) {
   const [dir, setDir] = useState<'usd2ars' | 'ars2usd'>('usd2ars')
 
   return (
-    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}`, borderTop: `3px solid #f97316` }}>
+    <div className="rounded-xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
       <div className="flex items-center gap-2 mb-5">
         <Calculator size={14} style={{ color: CELESTE }} />
         <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-400">Calculadora de brecha</p>
@@ -377,7 +375,7 @@ function Calculadora({ dolares }: { dolares: Dolar[] }) {
           const result = dir === 'usd2ars' ? usd * rate : usd / rate
           const label  = dir === 'usd2ars' ? `$${fmt.ars(result)}` : `U$S ${result.toFixed(2)}`
           return (
-            <div key={casa} className="rounded-xl p-3.5 transition-all hover:bg-white/[0.02]"
+            <div key={casa} className="rounded-lg p-3.5 transition-all hover:bg-white/[0.02]"
               style={{ background: SURFACE, border: `1px solid ${BORDER}` }}>
               <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: m.color }}>{m.label}</p>
               <p className="text-base font-bold text-white tabnum leading-tight">{label}</p>
@@ -527,7 +525,7 @@ function BrechaHistorica({ data }: { data: BrechaRow[] }) {
   const color = (last?.brecha ?? 0) < 10 ? '#4ade80' : (last?.brecha ?? 0) < 40 ? '#facc15' : (last?.brecha ?? 0) < 80 ? '#fb923c' : '#f87171'
 
   return (
-    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}`, borderTop: `3px solid ${color}` }}>
+    <div className="rounded-xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
       <div className="flex items-start justify-between mb-5">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-500 mb-1">Brecha cambiaria histórica</p>
@@ -682,7 +680,7 @@ function TermometroEconomico({
   ]
 
   return (
-    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}`, borderTop: `3px solid #facc15` }}>
+    <div className="rounded-xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
       <div className="flex items-center gap-2 mb-5">
         <Thermometer size={14} style={{ color: CELESTE }} />
         <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-400">Termómetro económico</p>
@@ -691,7 +689,7 @@ function TermometroEconomico({
         {items.map(item => (
           <div key={item.label}
             className="flex items-center gap-3 rounded-xl px-4 py-3"
-            style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${item.color}` }}>
+            style={{ background: SURFACE, border: `1px solid ${BORDER}` }}>
             <span className="text-lg shrink-0">{item.icon}</span>
             <div className="flex-1 min-w-0">
               <p className="text-[10px] text-slate-500 mb-0.5">{item.label}</p>
@@ -726,7 +724,7 @@ function PlazoFijoPanel({ data, inflacion }: {
     : null
 
   return (
-    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}`, borderTop: `3px solid #34d399` }}>
+    <div className="rounded-xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
       <div className="flex items-center gap-2 mb-5">
         <PiggyBank size={14} style={{ color: '#34d399' }} />
         <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-400">Plazo fijo vs inflación</p>
@@ -890,14 +888,14 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen text-white relative" style={{ background: BG }}>
-      {/* Escarapela argentina — watermark centrada en la pantalla */}
+      {/* Sol de Mayo — watermark centrado en la pantalla */}
       <div className="pointer-events-none fixed z-0"
         style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-        <Escarapela size={700} opacity={0.035} />
+        <SolDeMayo size={700} opacity={0.04} />
       </div>
       {/* Subtle celeste glow — top center */}
       <div className="pointer-events-none fixed inset-0 z-0" style={{
-        background: `radial-gradient(ellipse 70% 35% at 50% 0%, ${CELESTE}10, transparent 65%)`
+        background: `radial-gradient(ellipse 70% 35% at 50% 0%, ${CELESTE}0d, transparent 65%)`
       }} />
 
       <div className="relative z-10">
@@ -1028,7 +1026,7 @@ export default function Dashboard() {
             ))}
           </div>
 
-          <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}`, borderTop: `3px solid ${CELESTE}` }}>
+          <div className="rounded-xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
             {loading ? <Pulse h="h-72" /> : tab === 'evolucion' ? (
               <>
                 <p className="text-sm font-semibold text-slate-300 mb-0.5">Blue vs Oficial</p>
