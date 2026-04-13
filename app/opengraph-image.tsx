@@ -4,7 +4,6 @@ export const runtime = 'edge'
 export const alt = 'Argentina Macro Dashboard'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
-export const revalidate = 300 // refresh every 5 min
 
 async function fetchData() {
   try {
