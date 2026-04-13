@@ -303,15 +303,18 @@ function Calculadora({ dolares }: { dolares: Dolar[] }) {
     <div className="rounded-lg p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
       <SectionHeader title="Calculadora de brecha" />
 
-      <div className="flex items-center gap-3 mb-4">
-        <div className="flex rounded-md overflow-hidden text-xs font-bold" style={{ border: `1px solid ${BORDER}` }}>
-          {(['usd2ars', 'ars2usd'] as const).map(d => (
-            <button key={d} onClick={() => setDir(d)} className="px-4 py-2 transition-colors"
-              style={{ background: dir === d ? CELESTE : 'transparent', color: dir === d ? BG : '#6b7280' }}>
-              {d === 'usd2ars' ? 'USD → ARS' : 'ARS → USD'}
-            </button>
-          ))}
-        </div>
+      <div className="flex items-center gap-2 mb-4">
+        {(['usd2ars', 'ars2usd'] as const).map(d => (
+          <button key={d} onClick={() => setDir(d)}
+            className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200"
+            style={{
+              background: dir === d ? CELESTE : CARD,
+              color: dir === d ? BG : '#6b7280',
+              border: `1px solid ${dir === d ? CELESTE : BORDER}`,
+            }}>
+            {d === 'usd2ars' ? 'USD → ARS' : 'ARS → USD'}
+          </button>
+        ))}
       </div>
 
       <div className="flex items-center gap-3 mb-5 rounded-md px-4 py-3" style={{ background: SURFACE, border: `1px solid ${BORDER}` }}>
@@ -859,14 +862,14 @@ export default function Dashboard() {
 
           {/* ── Gráficos ── */}
           <section>
-            <div className="flex items-center gap-1 mb-5 p-1 rounded-md w-fit"
-              style={{ background: SURFACE, border: `1px solid ${BORDER}` }}>
+            <div className="flex items-center gap-2 mb-5">
               {TABS.map(t => (
                 <button key={t.id} onClick={() => setTab(t.id)}
-                  className="px-4 py-2 rounded text-sm font-medium transition-all"
+                  className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200"
                   style={{
-                    background: tab === t.id ? CELESTE : 'transparent',
+                    background: tab === t.id ? CELESTE : CARD,
                     color: tab === t.id ? BG : '#6b7280',
+                    border: `1px solid ${tab === t.id ? CELESTE : BORDER}`,
                   }}>
                   {t.label}
                 </button>
