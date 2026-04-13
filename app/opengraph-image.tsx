@@ -4,8 +4,47 @@ export const runtime = 'edge'
 export const alt = 'Argentina Macro Dashboard'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
+export const revalidate = 300 // refresh every 5 min
 
-export default function OGImage() {
+async function fetchData() {
+  try {
+    const [dolaresRes, inflacionRes, riesgoPaisRes] = await Promise.allSettled([
+      fetch('https://dolarapi.com/v1/dolares', { cache: 'no-store' }).then(r => r.json()),
+      fetch('https://api.argentinadatos.com/v1/finanzas/indices/inflacion', { cache: 'no-store' }).then(r => r.json()),
+      fetch('https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais', { cache: 'no-store' }).then(r => r.json()),
+    ])
+
+    const dolares  = dolaresRes.status  === 'fulfilled' ? dolaresRes.value  : []
+    const inflData = inflacionRes.status === 'fulfilled' ? inflacionRes.value : []
+    const rpData   = riesgoPaisRes.status === 'fulfilled' ? riesgoPaisRes.value : []
+
+    const blue    = Array.isArray(dolares) ? dolares.find((d: { casa: string }) => d.casa === 'blue') : null
+    const oficial = Array.isArray(dolares) ? dolares.find((d: { casa: string }) => d.casa === 'oficial') : null
+    const brecha  = blue && oficial ? ((blue.venta - oficial.venta) / oficial.venta * 100) : null
+    const infl    = Array.isArray(inflData) && inflData.length > 0 ? inflData[inflData.length - 1] : null
+    const rp      = Array.isArray(rpData)   && rpData.length > 0   ? rpData[rpData.length - 1]   : null
+
+    return {
+      blue:    blue    ? `$${Math.round(blue.venta).toLocaleString('es-AR')}`       : '—',
+      brecha:  brecha  != null ? `${brecha >= 0 ? '+' : ''}${brecha.toFixed(1)}%` : '—',
+      inflacion: infl  ? `${infl.valor}%`                                           : '—',
+      riesgoPais: rp   ? `${Math.round(rp.valor)} bps`                             : '—',
+    }
+  } catch {
+    return { blue: '—', brecha: '—', inflacion: '—', riesgoPais: '—' }
+  }
+}
+
+export default async function OGImage() {
+  const data = await fetchData()
+
+  const metrics = [
+    { label: 'DÓLAR BLUE',   value: data.blue,       sub: 'Mercado informal',   color: '#74ACDF' },
+    { label: 'BRECHA',       value: data.brecha,     sub: 'Blue / Oficial',     color: '#22c55e' },
+    { label: 'INFLACIÓN',    value: data.inflacion,  sub: 'Mensual · INDEC',    color: '#ef4444' },
+    { label: 'RIESGO PAÍS',  value: data.riesgoPais, sub: 'EMBI+ Argentina',    color: '#f97316' },
+  ]
+
   return new ImageResponse(
     (
       <div
@@ -15,7 +54,6 @@ export default function OGImage() {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          position: 'relative',
           fontFamily: 'system-ui, sans-serif',
           overflow: 'hidden',
         }}
@@ -55,16 +93,11 @@ export default function OGImage() {
 
           {/* Middle: metric cards */}
           <div style={{ display: 'flex', gap: 20, marginTop: 48 }}>
-            {[
-              { label: 'DÓLAR BLUE', value: '$1.390', sub: 'Mercado informal', color: '#74ACDF' },
-              { label: 'BRECHA', value: '-0.4%', sub: 'Blue / Oficial', color: '#22c55e' },
-              { label: 'INFLACIÓN', value: '2.9%', sub: 'Mensual · INDEC', color: '#ef4444' },
-              { label: 'RIESGO PAÍS', value: '553 bps', sub: 'EMBI+ Argentina', color: '#f97316' },
-            ].map(m => (
+            {metrics.map(m => (
               <div key={m.label} style={{
                 flex: 1,
                 background: '#1a1a1f',
-                border: `1px solid #26262e`,
+                border: '1px solid #26262e',
                 borderRadius: 16,
                 padding: '24px 28px',
                 display: 'flex',
@@ -74,7 +107,7 @@ export default function OGImage() {
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#4b5563', letterSpacing: '3px', textTransform: 'uppercase' }}>
                   {m.label}
                 </span>
-                <span style={{ fontSize: 36, fontWeight: 800, color: '#ffffff', fontVariantNumeric: 'tabular-nums' }}>
+                <span style={{ fontSize: 34, fontWeight: 800, color: '#ffffff', fontVariantNumeric: 'tabular-nums' }}>
                   {m.value}
                 </span>
                 <span style={{ fontSize: 13, color: '#4b5563' }}>{m.sub}</span>
@@ -82,7 +115,7 @@ export default function OGImage() {
             ))}
           </div>
 
-          {/* Bottom: URL */}
+          {/* Bottom */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 48 }}>
             <span style={{ fontSize: 18, color: '#374151' }}>
               Dólar · Inflación · Riesgo País · Plazo Fijo · Brecha Histórica

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Argentine flag stripes -->
+  <rect width="32" height="32" rx="6" fill="#74ACDF"/>
+  <rect y="10.67" width="32" height="10.67" fill="#FFFFFF"/>
+
+  <!-- Sol de Mayo (simplified, 8 rays alternating) -->
+  <g transform="translate(16,16)">
+    <!-- Straight rays -->
+    <polygon points="0,-6 0.8,-3.5 -0.8,-3.5" fill="#F6B40E"/>
+    <polygon points="0,6 0.8,3.5 -0.8,3.5" fill="#F6B40E"/>
+    <polygon points="-6,0 -3.5,0.8 -3.5,-0.8" fill="#F6B40E"/>
+    <polygon points="6,0 3.5,0.8 3.5,-0.8" fill="#F6B40E"/>
+    <!-- Diagonal straight rays -->
+    <polygon points="-4.24,-4.24 -2.5,-2 -2,-2.5" fill="#F6B40E"/>
+    <polygon points="4.24,-4.24 2.5,-2 2,-2.5" fill="#F6B40E"/>
+    <polygon points="-4.24,4.24 -2.5,2 -2,2.5" fill="#F6B40E"/>
+    <polygon points="4.24,4.24 2.5,2 2,2.5" fill="#F6B40E"/>
+    <!-- Sun face -->
+    <circle r="3.2" fill="#F6B40E" stroke="#E8A000" stroke-width="0.3"/>
+    <!-- Eyes -->
+    <ellipse cx="-1" cy="-0.5" rx="0.5" ry="0.6" fill="#8B4513"/>
+    <ellipse cx="1" cy="-0.5" rx="0.5" ry="0.6" fill="#8B4513"/>
+    <!-- Smile -->
+    <path d="M -1.2 0.8 Q 0 1.6 1.2 0.8" stroke="#8B4513" stroke-width="0.35" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>
