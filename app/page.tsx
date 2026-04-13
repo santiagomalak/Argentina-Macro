@@ -22,11 +22,11 @@ interface PlazoFijoRate { entidad: string; tna: number; tea: number; tna30: numb
 interface PlazoFijoData { top5: PlazoFijoRate[]; avgTraditional: number | null; best: PlazoFijoRate | null }
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
-const BG      = '#07070f'
-const SURFACE = '#0e0e1a'
-const CARD    = '#11111e'
-const BORDER  = '#1c1c30'
-const CELESTE = '#74b9ff'
+const BG      = '#020D1A'   // deep navy — Argentine flag blue, darkened
+const SURFACE = '#051829'   // slightly lighter navy
+const CARD    = '#071E38'   // card bg — blue-tinted dark
+const BORDER  = '#0F3A5C'   // visible blue border
+const CELESTE = '#74ACDF'   // official Argentine flag celeste (Pantone 290C)
 
 const META: Record<string, { label: string; color: string; desc: string }> = {
   oficial:         { label: 'Oficial',   color: CELESTE,  desc: 'Banco Nación Argentina' },
@@ -56,10 +56,10 @@ const fmt = {
 }
 
 const ttStyle = {
-  contentStyle: { background: '#09091a', border: `1px solid ${BORDER}`, borderRadius: 10, fontSize: 12, padding: '10px 14px' },
+  contentStyle: { background: '#031122', border: `1px solid ${BORDER}`, borderRadius: 10, fontSize: 12, padding: '10px 14px' },
   labelStyle:   { color: '#94a3b8', marginBottom: 4 },
   itemStyle:    { color: '#e2e8f0' },
-  cursor:       { stroke: '#ffffff08' },
+  cursor:       { stroke: '#74ACDF15' },
 }
 
 // ── Sol de Mayo ───────────────────────────────────────────────────────────────
@@ -129,7 +129,7 @@ function TickerTape({ dolares }: { dolares: Dolar[] }) {
   const doubled = [...items, ...items] // loop trick
 
   return (
-    <div className="overflow-hidden" style={{ background: '#0a0a18', borderBottom: `1px solid ${BORDER}` }}>
+    <div className="overflow-hidden" style={{ background: '#030F1F', borderBottom: `1px solid ${BORDER}`, borderTop: `1px solid ${BORDER}` }}>
       <div className="ticker-track flex items-center whitespace-nowrap py-2">
         {doubled.map((d, i) => {
           const m = META[d.casa]
@@ -156,13 +156,13 @@ function TickerTape({ dolares }: { dolares: Dolar[] }) {
 // ── Hero KPI card ─────────────────────────────────────────────────────────────
 function HeroKPI({ label, value, sub, color }: { label: string; value: string; sub: string; color: string }) {
   return (
-    <div className="flex flex-col gap-1.5 p-5 rounded-2xl relative overflow-hidden"
-      style={{ background: CARD, border: `1px solid ${color}25` }}>
+    <div className="flex flex-col gap-2 p-5 rounded-2xl relative overflow-hidden"
+      style={{ background: CARD, border: `1px solid ${color}40`, borderTop: `3px solid ${color}` }}>
       <div className="absolute inset-0 rounded-2xl pointer-events-none"
-        style={{ background: `radial-gradient(ellipse at top left, ${color}10, transparent 70%)` }} />
-      <p className="text-[10px] font-bold uppercase tracking-[3px] relative z-10" style={{ color: color + '99' }}>{label}</p>
-      <p className="text-3xl font-bold tracking-tight tabnum relative z-10" style={{ color }}>{value}</p>
-      <p className="text-[11px] relative z-10" style={{ color: '#475569' }}>{sub}</p>
+        style={{ background: `radial-gradient(ellipse at top left, ${color}18, transparent 65%)` }} />
+      <p className="text-[10px] font-bold uppercase tracking-[3px] relative z-10" style={{ color: color + 'bb' }}>{label}</p>
+      <p className="text-3xl font-bold tracking-tight tabnum relative z-10 text-white">{value}</p>
+      <p className="text-[11px] relative z-10" style={{ color: '#4d7a9a' }}>{sub}</p>
     </div>
   )
 }
@@ -179,10 +179,10 @@ function FeaturedCard({ d, oficialVenta, sparkValues }: {
 
   return (
     <div className="rounded-2xl p-6 flex flex-col gap-4 relative overflow-hidden group
-                    transition-all duration-300 hover:-translate-y-1"
-      style={{ background: CARD, border: `1px solid ${m.color}30` }}>
-      <div className="absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-70"
-        style={{ background: `radial-gradient(ellipse at top left, ${m.color}0d, transparent 60%)` }} />
+                    transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+      style={{ background: CARD, border: `1px solid ${m.color}45`, borderTop: `3px solid ${m.color}` }}>
+      <div className="absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-80"
+        style={{ background: `radial-gradient(ellipse at top left, ${m.color}14, transparent 55%)` }} />
 
       <div className="flex items-start justify-between relative z-10">
         <div>
@@ -232,8 +232,8 @@ function MiniCard({ d, oficialVenta }: { d: Dolar; oficialVenta: number }) {
   const brecha = oficialVenta > 0 ? ((d.venta - oficialVenta) / oficialVenta) * 100 : null
   return (
     <div className="rounded-xl px-4 py-3.5 flex items-center justify-between gap-4
-                    transition-all hover:bg-white/[0.02]"
-      style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+                    transition-all hover:brightness-110"
+      style={{ background: CARD, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${m.color}` }}>
       <div className="flex items-center gap-3">
         <div className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />
         <div>
@@ -261,7 +261,7 @@ function BrechaComparador({ dolares }: { dolares: Dolar[] }) {
   const max = Math.max(...comparables.map(d => d.venta))
 
   return (
-    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}`, borderTop: `3px solid ${CELESTE}` }}>
       <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-500 mb-1">Comparador de tipos de cambio</p>
       <p className="text-[11px] text-slate-600 mb-6">Precio venta · referencia Oficial ${fmt.ars(oficial.venta)}</p>
       <div className="flex flex-col gap-3.5">
@@ -310,7 +310,7 @@ function Calculadora({ dolares }: { dolares: Dolar[] }) {
   const [dir, setDir] = useState<'usd2ars' | 'ars2usd'>('usd2ars')
 
   return (
-    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}`, borderTop: `3px solid #f97316` }}>
       <div className="flex items-center gap-2 mb-5">
         <Calculator size={14} style={{ color: CELESTE }} />
         <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-400">Calculadora de brecha</p>
@@ -383,7 +383,7 @@ function EvolucionChart({ data }: { data: EvolucionRow[] }) {
       <div style={{ width: '100%' }}>
       <ResponsiveContainer width="100%" height={340}>
         <LineChart data={data} margin={{ top: 8, right: 32, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1c1c30" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#0F3A5C" vertical={false} />
           <XAxis dataKey="month" tick={{ fill: '#475569', fontSize: 11 }}
             tickFormatter={fmt.month} interval="preserveStartEnd" axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: '#475569', fontSize: 11 }}
@@ -411,7 +411,7 @@ function InflacionChart({ data }: { data: { monthly: DataRow[]; yoy: DataRow[] }
         <div style={{ width: '100%' }}>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={merged} margin={{ top: 4, right: 32, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1c1c30" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#0F3A5C" vertical={false} />
             <XAxis dataKey="fecha" tick={{ fill: '#475569', fontSize: 10 }}
               tickFormatter={s => fmt.month(s.slice(0, 7))} interval={3} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: '#475569', fontSize: 11 }} tickFormatter={v => `${v}%`} axisLine={false} tickLine={false} width={36} />
@@ -437,7 +437,7 @@ function InflacionChart({ data }: { data: { monthly: DataRow[]; yoy: DataRow[] }
                 <stop offset="95%" stopColor="#f87171" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1c1c30" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#0F3A5C" vertical={false} />
             <XAxis dataKey="fecha" tick={{ fill: '#475569', fontSize: 10 }}
               tickFormatter={s => fmt.month(s.slice(0, 7))} interval={3} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: '#475569', fontSize: 11 }} tickFormatter={v => `${v}%`} axisLine={false} tickLine={false} width={36} />
@@ -481,7 +481,7 @@ function RiesgoPaisChart({ data }: { data: DataRow[] }) {
               <stop offset="95%" stopColor="#f97316" stopOpacity={0.02} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1c1c30" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#0F3A5C" vertical={false} />
           <XAxis dataKey="fecha" tick={{ fill: '#475569', fontSize: 10 }}
             tickFormatter={fmt.date} interval={14} axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: '#475569', fontSize: 11 }} domain={['auto','auto']} axisLine={false} tickLine={false} width={42} />
@@ -504,7 +504,7 @@ function BrechaHistorica({ data }: { data: BrechaRow[] }) {
   const color = (last?.brecha ?? 0) < 10 ? '#4ade80' : (last?.brecha ?? 0) < 40 ? '#facc15' : (last?.brecha ?? 0) < 80 ? '#fb923c' : '#f87171'
 
   return (
-    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}`, borderTop: `3px solid ${color}` }}>
       <div className="flex items-start justify-between mb-5">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-500 mb-1">Brecha cambiaria histórica</p>
@@ -542,7 +542,7 @@ function BrechaHistorica({ data }: { data: BrechaRow[] }) {
               <stop offset="95%" stopColor={color} stopOpacity={0.02} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1c1c30" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#0F3A5C" vertical={false} />
           <XAxis dataKey="date" tick={{ fill: '#475569', fontSize: 10 }}
             tickFormatter={s => fmt.date(s)} interval={15} axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: '#475569', fontSize: 11 }}
@@ -659,7 +659,7 @@ function TermometroEconomico({
   ]
 
   return (
-    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}`, borderTop: `3px solid #facc15` }}>
       <div className="flex items-center gap-2 mb-5">
         <Thermometer size={14} style={{ color: CELESTE }} />
         <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-400">Termómetro económico</p>
@@ -668,7 +668,7 @@ function TermometroEconomico({
         {items.map(item => (
           <div key={item.label}
             className="flex items-center gap-3 rounded-xl px-4 py-3"
-            style={{ background: SURFACE, border: `1px solid ${BORDER}` }}>
+            style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderLeft: `3px solid ${item.color}` }}>
             <span className="text-lg shrink-0">{item.icon}</span>
             <div className="flex-1 min-w-0">
               <p className="text-[10px] text-slate-500 mb-0.5">{item.label}</p>
@@ -703,7 +703,7 @@ function PlazoFijoPanel({ data, inflacion }: {
     : null
 
   return (
-    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+    <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}`, borderTop: `3px solid #34d399` }}>
       <div className="flex items-center gap-2 mb-5">
         <PiggyBank size={14} style={{ color: '#34d399' }} />
         <p className="text-[10px] font-bold uppercase tracking-[3px] text-slate-400">Plazo fijo vs inflación</p>
@@ -866,14 +866,19 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen text-white" style={{ background: BG }}>
+    <div className="min-h-screen text-white relative" style={{ background: BG }}>
+      {/* Subtle Argentine flag blue radial glow — top center */}
+      <div className="pointer-events-none fixed inset-0 z-0" style={{
+        background: `radial-gradient(ellipse 80% 40% at 50% -10%, ${CELESTE}0e, transparent 70%)`
+      }} />
 
+      <div className="relative z-10">
       {/* ── Header ── */}
       <header className="sticky top-0 z-50 backdrop-blur-xl"
-        style={{ borderBottom: `1px solid ${BORDER}`, background: `${SURFACE}d0` }}>
-        {/* 🇦🇷 Flag stripe */}
-        <div className="h-[3px]" style={{
-          background: `linear-gradient(90deg, ${CELESTE} 33%, #fff 33%, #fff 67%, ${CELESTE} 67%)`
+        style={{ borderBottom: `1px solid ${BORDER}`, background: `${SURFACE}e8` }}>
+        {/* 🇦🇷 Flag stripe — celeste / blanco / celeste */}
+        <div className="h-[5px]" style={{
+          background: `linear-gradient(90deg, ${CELESTE} 33%, #FFFFFF 33%, #FFFFFF 67%, ${CELESTE} 67%)`
         }} />
         <div className="w-full px-6 py-3 flex items-center justify-between gap-4 relative">
           {/* Sol de Mayo watermark */}
@@ -999,7 +1004,7 @@ export default function Dashboard() {
             ))}
           </div>
 
-          <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+          <div className="rounded-2xl p-6" style={{ background: CARD, border: `1px solid ${BORDER}`, borderTop: `3px solid ${CELESTE}` }}>
             {loading ? <Pulse h="h-72" /> : tab === 'evolucion' ? (
               <>
                 <p className="text-sm font-semibold text-slate-300 mb-0.5">Blue vs Oficial</p>
@@ -1060,6 +1065,7 @@ export default function Dashboard() {
         </footer>
 
       </main>
+      </div>
     </div>
   )
 }
