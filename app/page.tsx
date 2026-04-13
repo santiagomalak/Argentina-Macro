@@ -64,28 +64,107 @@ const ttStyle = {
   cursor:       { stroke: '#ffffff10' },
 }
 
-// ── Sol de Mayo (watermark) ───────────────────────────────────────────────────
+// ── Sol de Mayo — estilo moneda argentina ────────────────────────────────────
 function SolDeMayo({ size = 320, opacity = 0.035 }: { size?: number; opacity?: number }) {
   const cx = size / 2, cy = size / 2
-  const rInner = size * 0.18, rOuter = size * 0.38, rFace = size * 0.15
-  const rays = Array.from({ length: 16 }, (_, i) => {
-    const angle = (i * 22.5 - 90) * (Math.PI / 180)
-    const x1 = cx + rInner * Math.cos(angle), y1 = cy + rInner * Math.sin(angle)
-    const x2 = cx + rOuter * Math.cos(angle), y2 = cy + rOuter * Math.sin(angle)
-    if (i % 2 === 0) return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={CELESTE} strokeWidth={size * 0.025} strokeLinecap="round" />
-    const mid = (rInner + rOuter) / 2, perp = Math.PI / 2
-    const bx = cx + mid * Math.cos(angle) + (size * 0.04) * Math.cos(angle + perp)
-    const by = cy + mid * Math.sin(angle) + (size * 0.04) * Math.sin(angle + perp)
-    return <path key={i} d={`M${x1},${y1} Q${bx},${by} ${x2},${y2}`} stroke={CELESTE} strokeWidth={size * 0.018} fill="none" strokeLinecap="round" />
+  const S = size
+
+  // Radios — proporciones de moneda
+  const rCoinOuter = S * 0.485  // borde exterior de la moneda
+  const rCoinInner = S * 0.455  // borde interior (bisel)
+  const rRayInner  = S * 0.215  // base de los rayos
+  const rRayOuter  = S * 0.420  // punta de los rayos
+  const rFace      = S * 0.155  // cara
+  const rFaceRing  = S * 0.185  // anillo alrededor de la cara
+
+  // 32 rayos alternados: 16 rectos + 16 ondulados
+  const rays = Array.from({ length: 32 }, (_, i) => {
+    const angle = (i * (360 / 32) - 90) * (Math.PI / 180)
+    const x1 = cx + rRayInner * Math.cos(angle)
+    const y1 = cy + rRayInner * Math.sin(angle)
+    const x2 = cx + rRayOuter * Math.cos(angle)
+    const y2 = cy + rRayOuter * Math.sin(angle)
+
+    if (i % 2 === 0) {
+      // Rayo recto — más ancho en la base, termina en punta
+      const perpA = angle + Math.PI / 2
+      const baseW = S * 0.013
+      const x1a = x1 + baseW * Math.cos(perpA), y1a = y1 + baseW * Math.sin(perpA)
+      const x1b = x1 - baseW * Math.cos(perpA), y1b = y1 - baseW * Math.sin(perpA)
+      return (
+        <polygon key={i}
+          points={`${x1a.toFixed(2)},${y1a.toFixed(2)} ${x1b.toFixed(2)},${y1b.toFixed(2)} ${x2.toFixed(2)},${y2.toFixed(2)}`}
+          fill={CELESTE} />
+      )
+    } else {
+      // Rayo ondulado (flameado)
+      const mid   = (rRayInner + rRayOuter) / 2
+      const perp  = Math.PI / 2
+      const wAmp  = S * 0.028
+      const bx1 = cx + mid * 0.6 * Math.cos(angle) + wAmp * Math.cos(angle + perp)
+      const by1 = cy + mid * 0.6 * Math.sin(angle) + wAmp * Math.sin(angle + perp)
+      const bx2 = cx + mid * 1.1 * Math.cos(angle) - wAmp * Math.cos(angle + perp)
+      const by2 = cy + mid * 1.1 * Math.sin(angle) - wAmp * Math.sin(angle + perp)
+      return (
+        <path key={i}
+          d={`M${x1.toFixed(2)},${y1.toFixed(2)} C${bx1.toFixed(2)},${by1.toFixed(2)} ${bx2.toFixed(2)},${by2.toFixed(2)} ${x2.toFixed(2)},${y2.toFixed(2)}`}
+          stroke={CELESTE} strokeWidth={S * 0.012} fill="none" strokeLinecap="round" />
+      )
+    }
   })
+
+  // Ojos — elipses, más detallados
+  const eyeY   = cy - rFace * 0.18
+  const eyeOffX = rFace * 0.30
+  const eyeRx  = rFace * 0.10, eyeRy = rFace * 0.13
+
+  // Nariz
+  const noseY = cy + rFace * 0.08
+
+  // Boca — arco curvado hacia arriba
+  const mouthY = cy + rFace * 0.28
+  const mouthW = rFace * 0.38
+
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ opacity }} aria-hidden>
+    <svg width={S} height={S} viewBox={`0 0 ${S} ${S}`} style={{ opacity }} aria-hidden>
+      {/* Borde exterior moneda */}
+      <circle cx={cx} cy={cy} r={rCoinOuter} fill="none" stroke={CELESTE} strokeWidth={S * 0.008} />
+      {/* Bisel interior */}
+      <circle cx={cx} cy={cy} r={rCoinInner} fill="none" stroke={CELESTE} strokeWidth={S * 0.004} />
+
+      {/* Rayos */}
       {rays}
+
+      {/* Anillo alrededor de la cara */}
+      <circle cx={cx} cy={cy} r={rFaceRing} fill={BG} stroke={CELESTE} strokeWidth={S * 0.006} />
+
+      {/* Cara — círculo relleno */}
       <circle cx={cx} cy={cy} r={rFace} fill={CELESTE} />
-      <circle cx={cx - rFace * 0.28} cy={cy - rFace * 0.15} r={rFace * 0.1} fill={BG} />
-      <circle cx={cx + rFace * 0.28} cy={cy - rFace * 0.15} r={rFace * 0.1} fill={BG} />
-      <path d={`M${cx - rFace * 0.28},${cy + rFace * 0.15} Q${cx},${cy + rFace * 0.42} ${cx + rFace * 0.28},${cy + rFace * 0.15}`}
-        stroke={BG} strokeWidth={rFace * 0.1} fill="none" strokeLinecap="round" />
+
+      {/* Ojos */}
+      <ellipse cx={cx - eyeOffX} cy={eyeY} rx={eyeRx} ry={eyeRy} fill={BG} />
+      <ellipse cx={cx + eyeOffX} cy={eyeY} rx={eyeRx} ry={eyeRy} fill={BG} />
+
+      {/* Pupilas */}
+      <ellipse cx={cx - eyeOffX} cy={eyeY + eyeRy * 0.2} rx={eyeRx * 0.45} ry={eyeRy * 0.45} fill={CELESTE} />
+      <ellipse cx={cx + eyeOffX} cy={eyeY + eyeRy * 0.2} rx={eyeRx * 0.45} ry={eyeRy * 0.45} fill={CELESTE} />
+
+      {/* Nariz — pequeño punto */}
+      <circle cx={cx} cy={noseY} r={rFace * 0.045} fill={BG} />
+
+      {/* Boca — sonrisa */}
+      <path
+        d={`M${cx - mouthW},${mouthY} Q${cx},${mouthY + rFace * 0.28} ${cx + mouthW},${mouthY}`}
+        stroke={BG} strokeWidth={S * 0.012} fill="none" strokeLinecap="round"
+      />
+
+      {/* Bigotes / cejas opcionales — líneas encima de ojos */}
+      <line x1={cx - eyeOffX - eyeRx * 0.8} y1={eyeY - eyeRy * 1.5}
+            x2={cx - eyeOffX + eyeRx * 0.8} y2={eyeY - eyeRy * 1.6}
+            stroke={BG} strokeWidth={S * 0.008} strokeLinecap="round" />
+      <line x1={cx + eyeOffX - eyeRx * 0.8} y1={eyeY - eyeRy * 1.6}
+            x2={cx + eyeOffX + eyeRx * 0.8} y2={eyeY - eyeRy * 1.5}
+            stroke={BG} strokeWidth={S * 0.008} strokeLinecap="round" />
     </svg>
   )
 }
