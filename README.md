@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🇦🇷 Argentina Macro Dashboard
 
-## Getting Started
+Dashboard macroeconómico de Argentina con datos en tiempo real. Tipos de cambio, inflación, riesgo país y análisis financiero — todo actualizado al minuto desde APIs públicas.
 
-First, run the development server:
+**[→ Ver en vivo](https://argentina-macro.vercel.app)**
+
+---
+
+## ¿Qué muestra?
+
+| Sección | Datos |
+|---|---|
+| **Tipos de cambio** | Oficial, Blue, MEP, CCL, Cripto, Tarjeta, Mayorista |
+| **Brecha cambiaria** | Spread blue/oficial en tiempo real + histórico 18 meses |
+| **Inflación** | IPC mensual e interanual (INDEC) — últimos 24 meses |
+| **Riesgo País** | EMBI+ Argentina — últimos 90 días |
+| **Comparador** | Barras visuales con % de brecha por tipo de cambio |
+| **Calculadora** | Convertí USD ↔ ARS en todos los tipos de cambio |
+| **Plazo Fijo** | Top 5 tasas TNA + rendimiento real vs inflación |
+| **Termómetro** | Semáforo macroeconómico con 6 indicadores clave |
+
+---
+
+## Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **UI**: Tailwind CSS v4
+- **Gráficos**: Recharts
+- **Deploy**: Vercel
+- **Lenguaje**: TypeScript
+
+## APIs (todas públicas, sin API key)
+
+| API | Datos |
+|---|---|
+| [dolarapi.com](https://dolarapi.com) | Tipos de cambio en tiempo real |
+| [bluelytics.com.ar](https://bluelytics.com.ar) | Histórico blue/oficial |
+| [argentinadatos.com](https://argentinadatos.com) | Inflación INDEC, riesgo país, plazo fijo |
+
+---
+
+## Correr localmente
 
 ```bash
+git clone https://github.com/santiagomalak/Argentina-Macro.git
+cd Argentina-Macro
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrí [http://localhost:3000](http://localhost:3000). No se necesita ningún `.env` — todas las APIs son públicas.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy propio
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/santiagomalak/Argentina-Macro)
 
-## Learn More
+Un click y listo. Sin variables de entorno requeridas.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Arquitectura
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+app/
+├── page.tsx              # Dashboard principal (client component)
+├── layout.tsx            # Metadata SEO + layout raíz
+├── globals.css           # Animaciones ticker, tabnum, glow
+└── api/
+    ├── dolares/          # Tipos de cambio (polling 60s)
+    ├── evolucion/        # Histórico blue vs oficial
+    ├── inflacion/        # IPC mensual e interanual
+    ├── riesgo-pais/      # EMBI+ últimos 90 días
+    ├── sparklines/       # Minigráficos 10 días
+    ├── brecha-historica/ # Brecha % últimos 18 meses
+    └── plazo-fijo/       # Top 5 tasas + promedio bancos
+```
 
-## Deploy on Vercel
+Todas las rutas de API usan `export const dynamic = 'force-dynamic'` para datos frescos en cada request.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*Datos con fines informativos. No constituye asesoramiento financiero.*
