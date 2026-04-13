@@ -3,34 +3,30 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: #020D1A;
-  color: #e4e4e7;
+  background: #0d0d10;
+  color: #e5e5e5;
   font-family: Inter, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 ::-webkit-scrollbar       { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #020D1A; }
-::-webkit-scrollbar-thumb { background: #0F3A5C; border-radius: 3px; }
+::-webkit-scrollbar-track { background: #0d0d10; }
+::-webkit-scrollbar-thumb { background: #26262e; border-radius: 3px; }
 
 /* Ticker tape */
 @keyframes ticker {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-.ticker-track { animation: ticker 28s linear infinite; }
+.ticker-track { animation: ticker 30s linear infinite; }
 .ticker-track:hover { animation-play-state: paused; }
 
 /* Tabular numbers */
 .tabnum { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
 
-/* Pulse glow */
+/* Live glow */
 @keyframes glow-pulse {
   0%, 100% { box-shadow: 0 0 0 0 transparent; }
-  50%       { box-shadow: 0 0 18px 3px #74ACDF28; }
+  50%       { box-shadow: 0 0 14px 2px #74ACDF20; }
 }
 .glow-celeste { animation: glow-pulse 3s ease-in-out infinite; }
-
-/* Card hover glow */
-.card-hover { transition: box-shadow 0.3s ease, transform 0.2s ease; }
-.card-hover:hover { box-shadow: 0 8px 32px #74ACDF12; }
