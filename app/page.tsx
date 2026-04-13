@@ -62,6 +62,29 @@ const ttStyle = {
   cursor:       { stroke: '#74ACDF15' },
 }
 
+// ── Escarapela Argentina ──────────────────────────────────────────────────────
+function Escarapela({ size = 600, opacity = 0.045 }: { size?: number; opacity?: number }) {
+  const cx = size / 2, cy = size / 2
+  // Concentric rings alternating celeste / white, from outside in
+  const rings = [
+    { r: size * 0.48, color: CELESTE },
+    { r: size * 0.40, color: '#FFFFFF' },
+    { r: size * 0.32, color: CELESTE },
+    { r: size * 0.24, color: '#FFFFFF' },
+    { r: size * 0.16, color: CELESTE },
+    { r: size * 0.09, color: '#FFFFFF' },
+  ]
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ opacity }} aria-hidden>
+      {rings.map((ring, i) => (
+        <circle key={i} cx={cx} cy={cy} r={ring.r} fill={ring.color} />
+      ))}
+      {/* Center dot */}
+      <circle cx={cx} cy={cy} r={size * 0.04} fill={CELESTE} />
+    </svg>
+  )
+}
+
 // ── Sol de Mayo ───────────────────────────────────────────────────────────────
 function SolDeMayo({ size = 320, opacity = 0.035 }: { size?: number; opacity?: number }) {
   const cx = size / 2, cy = size / 2
@@ -867,9 +890,14 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen text-white relative" style={{ background: BG }}>
-      {/* Subtle Argentine flag blue radial glow — top center */}
+      {/* Escarapela argentina — watermark centrada en la pantalla */}
+      <div className="pointer-events-none fixed z-0"
+        style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+        <Escarapela size={700} opacity={0.035} />
+      </div>
+      {/* Subtle celeste glow — top center */}
       <div className="pointer-events-none fixed inset-0 z-0" style={{
-        background: `radial-gradient(ellipse 80% 40% at 50% -10%, ${CELESTE}0e, transparent 70%)`
+        background: `radial-gradient(ellipse 70% 35% at 50% 0%, ${CELESTE}10, transparent 65%)`
       }} />
 
       <div className="relative z-10">
@@ -880,11 +908,7 @@ export default function Dashboard() {
         <div className="h-[5px]" style={{
           background: `linear-gradient(90deg, ${CELESTE} 33%, #FFFFFF 33%, #FFFFFF 67%, ${CELESTE} 67%)`
         }} />
-        <div className="w-full px-6 py-3 flex items-center justify-between gap-4 relative">
-          {/* Sol de Mayo watermark */}
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none overflow-hidden h-14 w-14">
-            <SolDeMayo size={56} opacity={0.12} />
-          </div>
+        <div className="w-full px-6 py-3 flex items-center justify-between gap-4">
 
           <div className="flex items-center gap-3">
             <span className="text-xl select-none">🇦🇷</span>
