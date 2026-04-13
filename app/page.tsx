@@ -296,8 +296,9 @@ function BrechaComparador({ dolares }: { dolares: Dolar[] }) {
 
 // ── Calculadora ───────────────────────────────────────────────────────────────
 function Calculadora({ dolares }: { dolares: Dolar[] }) {
-  const [usd, setUsd] = useState(100)
+  const [raw, setRaw] = useState('100')
   const [dir, setDir] = useState<'usd2ars' | 'ars2usd'>('usd2ars')
+  const usd = parseFloat(raw) || 0
 
   return (
     <div className="rounded-lg p-6" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
@@ -321,8 +322,15 @@ function Calculadora({ dolares }: { dolares: Dolar[] }) {
         <span className="text-base font-bold shrink-0" style={{ color: CELESTE }}>
           {dir === 'usd2ars' ? 'USD' : 'ARS'}
         </span>
-        <input type="number" value={usd} onChange={e => setUsd(Math.max(1, Number(e.target.value)))}
-          className="flex-1 bg-transparent text-2xl font-bold text-white outline-none tabnum min-w-0" min={1} />
+        <input
+          type="text"
+          inputMode="decimal"
+          value={raw}
+          onChange={e => setRaw(e.target.value.replace(/[^0-9.]/g, ''))}
+          onFocus={e => e.target.select()}
+          placeholder="0"
+          className="flex-1 bg-transparent text-2xl font-bold text-white outline-none tabnum min-w-0"
+        />
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
