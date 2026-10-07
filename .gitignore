@@ -42,3 +42,8 @@ next-env.d.ts
 
 # Claude Code local settings (may contain credentials)
 .claude/
+
+# Claude Code / agentes IA (contexto local, no va al repo)
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
